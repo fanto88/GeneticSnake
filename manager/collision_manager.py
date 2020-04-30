@@ -19,6 +19,6 @@ def collision_with_wall(snake_position):
 def collision_with_self(snake_next_position, snake):
     """Return True in case of collision with itself."""
     snake_next_position = snake_next_position.tolist()
-    if snake_next_position in snake.position()[1:].tolist():
+    if snake_next_position in snake.position[1:].tolist():
         return True
     return False
