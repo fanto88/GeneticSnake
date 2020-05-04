@@ -23,8 +23,7 @@ class Snake:
         self.position[0] = numpy.add(self.position[0], numpy.multiply(action, self.speed))
 
     def add_piece(self):
-        """Add config.PIECE_FOR_APPLE new pieces to the Snake."""
-        for value in range(config.PIECE_FOR_APPLE):
-            arr = self.position[self.length - 1]
-            self.position = numpy.vstack((self.position, arr))
-            self.length += 1
+        """Add a new piece to the Snake."""
+        arr = self.position[self.length - 1]
+        self.position = numpy.vstack((self.position, arr))
+        self.length += 1
