@@ -8,12 +8,13 @@ class Snake:
 
     def __init__(self):
         self.position = numpy.array([
+            [(config.GRID_SIZE[0] / 2) * config.RECT_SIZE[0], (config.GRID_SIZE[1] / 2 - 3) * config.RECT_SIZE[1]],
             [(config.GRID_SIZE[0] / 2) * config.RECT_SIZE[0], (config.GRID_SIZE[1] / 2 - 2) * config.RECT_SIZE[1]],
             [(config.GRID_SIZE[0] / 2) * config.RECT_SIZE[0], (config.GRID_SIZE[1] / 2 - 1) * config.RECT_SIZE[1]],
             [(config.GRID_SIZE[0] / 2) * config.RECT_SIZE[0], (config.GRID_SIZE[1] / 2) * config.RECT_SIZE[1]]
         ])
         self.speed = numpy.array([config.RECT_SIZE[0], config.RECT_SIZE[1]])
-        self.length = 3
+        self.length = 4
 
     def move_snake(self, action):
         """Move the snake based on the Action."""
