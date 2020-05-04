@@ -14,10 +14,12 @@ class DisplayManager:
 
     def draw_grid(self):
         """Display the grid of the arena."""
-        for x in range(config.GRID_SIZE[0]):
-            for y in range(config.GRID_SIZE[1]):
-                pygame.draw.rect(self.__display, config.GRID_BORDER_COLOR,
-                                 pygame.Rect(x * self.__side[0], y * self.__side[1], self.__side[0], self.__side[1]), 1)
+        if config.DRAW_GRID:
+            for x in range(config.GRID_SIZE[0]):
+                for y in range(config.GRID_SIZE[1]):
+                    pygame.draw.rect(self.__display, config.GRID_BORDER_COLOR,
+                                     pygame.Rect(x * self.__side[0], y * self.__side[1], self.__side[0],
+                                                 self.__side[1]), 1)
 
     def display_snake(self):
         """Display the snake on the window."""
@@ -38,8 +40,7 @@ class DisplayManager:
     def draw(self):
         """Called by the Game Manager to draw the objects needed."""
         self.__display.fill(config.BLACK)
-        if config.DRAW_GRID:
-            self.draw_grid()
+        self.draw_grid()
         self.display_snake()
         self.display_apple()
         pygame.display.update()
