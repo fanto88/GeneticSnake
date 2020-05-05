@@ -76,9 +76,9 @@ class GameManager:
         back_left_direction_vector = back_direction_vector - right_direction_vector
         back_right_direction_vector = back_direction_vector - left_direction_vector"""
 
-        #direction = numpy.array([-config.RECT_SIZE[0], 0])
-        #direction2 = numpy.array([0, -config.RECT_SIZE[0]])
-        #direction3 = numpy.array([config.RECT_SIZE[0], 0])
+        # direction = numpy.array([-config.RECT_SIZE[0], 0])
+        # direction2 = numpy.array([0, -config.RECT_SIZE[0]])
+        # direction3 = numpy.array([config.RECT_SIZE[0], 0])
 
         vision = numpy.zeros((0, 1))
         """for vector in [front_direction_vector, left_direction_vector, right_direction_vector,
@@ -147,11 +147,9 @@ class GameManager:
 
         if collision_manager.collision_with_wall(self.__snake.position[0]):
             result = True
-            self.__score += config.POINTS_FOR_COLLISION
 
         if collision_manager.collision_with_self(next_position, self.__snake):
             result = True
-            self.__score += config.POINTS_FOR_COLLISION
 
         return result
 
@@ -193,24 +191,6 @@ class GameManager:
             else:
                 action = Action.UP
 
-            """vision = self.directions_distance_objects()
-            vision = numpy.atleast_2d(vision)
-
-            output = keras.neural_net(self.__weights).model.predict(vision, 1)[0]
-            output = numpy.argmax(output)
-            new_direction = numpy.array(self.__snake.position[0]) - numpy.array(self.__snake.position[1])
-            if output == 0:
-                new_direction = numpy.array([new_direction[1], -new_direction[0]])
-            if output == 2:
-                new_direction = numpy.array([-new_direction[1], new_direction[0]])
-            if new_direction.tolist() == [config.RECT_SIZE[0], 0]:
-                action = Action.RIGHT
-            elif new_direction.tolist() == [-config.RECT_SIZE[0], 0]:
-                action = Action.LEFT
-            elif new_direction.tolist() == [0, config.RECT_SIZE[1]]:
-                action = Action.DOWN
-            else:
-                action = Action.UP"""
             self.__snake.move_snake(action)
             self.__remaining_moves -= 1
             self.__time_alive += 1
@@ -224,7 +204,8 @@ class GameManager:
             ended_game = self.check_if_game_ended()
             self.__clock.tick(config.FPS)
 
-        fitness = (self.__time_alive) + ((2**self.__snake.length) + (self.__snake.length**2.1)*500) - (((.25 * self.__time_alive)**1.3) * (self.__snake.length**1.2))
+        fitness = self.__time_alive + ((2 ** self.__snake.length) + (self.__snake.length ** 2.1) * 500) - (
+                    ((.25 * self.__time_alive) ** 1.3) * (self.__snake.length ** 1.2))
         fitness = max(fitness, .1)
 
         return fitness
