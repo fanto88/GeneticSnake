@@ -67,18 +67,18 @@ class GameManager:
         return objects
 
     def directions_distance_objects(self):
-        """front_direction_vector = self.__snake.position[0] - self.__snake.position[1]
+        front_direction_vector = self.__snake.position[0] - self.__snake.position[1]
         left_direction_vector = numpy.array([front_direction_vector[1], -front_direction_vector[0]])
         right_direction_vector = numpy.array([-front_direction_vector[1], front_direction_vector[0]])
-        back_direction_vector = numpy.array([-front_direction_vector[0], -front_direction_vector[1]])
+        """back_direction_vector = numpy.array([-front_direction_vector[0], -front_direction_vector[1]])
         front_left_direction_vector = front_direction_vector - right_direction_vector
         front_right_direction_vector = front_direction_vector - left_direction_vector
         back_left_direction_vector = back_direction_vector - right_direction_vector
         back_right_direction_vector = back_direction_vector - left_direction_vector"""
 
-        direction = numpy.array([-config.RECT_SIZE[0], 0])
-        direction2 = numpy.array([0, -config.RECT_SIZE[0]])
-        direction3 = numpy.array([config.RECT_SIZE[0], 0])
+        #direction = numpy.array([-config.RECT_SIZE[0], 0])
+        #direction2 = numpy.array([0, -config.RECT_SIZE[0]])
+        #direction3 = numpy.array([config.RECT_SIZE[0], 0])
 
         vision = numpy.zeros((0, 1))
         """for vector in [front_direction_vector, left_direction_vector, right_direction_vector,
@@ -88,15 +88,15 @@ class GameManager:
             vision = numpy.append(vision, objects[0])
             vision = numpy.append(vision, objects[1])
             vision = numpy.append(vision, objects[2])"""
-        objects = self.get_objects_by_direction(direction)
+        objects = self.get_objects_by_direction(left_direction_vector)
         vision = numpy.append(vision, objects[0])
         vision = numpy.append(vision, objects[1])
         vision = numpy.append(vision, objects[2])
-        objects = self.get_objects_by_direction(direction2)
+        objects = self.get_objects_by_direction(front_direction_vector)
         vision = numpy.append(vision, objects[0])
         vision = numpy.append(vision, objects[1])
         vision = numpy.append(vision, objects[2])
-        objects = self.get_objects_by_direction(direction3)
+        objects = self.get_objects_by_direction(right_direction_vector)
         vision = numpy.append(vision, objects[0])
         vision = numpy.append(vision, objects[1])
         vision = numpy.append(vision, objects[2])
@@ -220,10 +220,11 @@ class GameManager:
                 self.__remaining_moves += config.APPLE_EXTRA_MOVES
                 self.__apple.position = self.spawn_apple()
                 self.__snake.add_piece()
-
+            pygame.display.set_caption("Genetic Snake - SCORE: " + str(self.__score))
             ended_game = self.check_if_game_ended()
             self.__clock.tick(config.FPS)
 
-        fitness = numpy.floor(self.__time_alive + numpy.power(3, (numpy.floor(self.__snake.length))))
+        fitness = (self.__time_alive) + ((2**self.__snake.length) + (self.__snake.length**2.1)*500) - (((.25 * self.__time_alive)**1.3) * (self.__snake.length**1.2))
+        fitness = max(fitness, .1)
 
         return fitness
