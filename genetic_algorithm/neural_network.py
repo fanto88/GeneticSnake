@@ -7,10 +7,6 @@ def soft_max(z):
     return numpy.exp(z.T) / numpy.sum(numpy.exp(z.T), axis=1).reshape(-1, 1)
 
 
-def sigmoid(z):
-    return 1 / (1 + numpy.exp(-z))
-
-
 def relu(z):
     return numpy.maximum(0, z)
 
@@ -23,8 +19,10 @@ class NeuralNetwork:
         self.__weights = weights
         self.__W1_shape = (config.NEURONS_HIDDEN_1, config.INPUT)
         self.__W2_shape = (config.OUTPUT, config.NEURONS_HIDDEN_1)
-        self.__W1 = self.__weights[0:self.__W1_shape[0] * self.__W1_shape[1]].reshape(self.__W1_shape[0], self.__W1_shape[1])
-        self.__W2 = self.__weights[self.__W1_shape[0] * self.__W1_shape[1]:].reshape(self.__W2_shape[0], self.__W2_shape[1])
+        self.__W1 = self.__weights[0:self.__W1_shape[0] * self.__W1_shape[1]].reshape(self.__W1_shape[0],
+                                                                                      self.__W1_shape[1])
+        self.__W2 = self.__weights[self.__W1_shape[0] * self.__W1_shape[1]:].reshape(self.__W2_shape[0],
+                                                                                     self.__W2_shape[1])
 
     def update_parameters(self, vision):
         """Update all the input values of the Neural Network."""
@@ -40,7 +38,4 @@ class NeuralNetwork:
 
     def get_action(self):
         """Based on the output of the forward_propagation produce an Action."""
-        # Index max represent the index of the max value of the forward_propagation
-        # after that we use that index to create an action based on the snake orientation. So, first, we get his
-        # orientation, than we create the correct action based on it.
         return numpy.argmax(numpy.array(self.forward_propagation()))
