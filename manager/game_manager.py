@@ -198,6 +198,8 @@ class GameManager:
             if collision_manager.collision_with_apple(self.__apple.position, self.__snake.position[0]):
                 self.__score += self.__apple.points
                 self.__remaining_moves += config.APPLE_EXTRA_MOVES
+                if self.__remaining_moves > 500:
+                    self.__remaining_moves = 500
                 self.__apple.position = self.spawn_apple()
                 self.__snake.add_piece()
             pygame.display.set_caption("Genetic Snake - SCORE: " + str(self.__score))
