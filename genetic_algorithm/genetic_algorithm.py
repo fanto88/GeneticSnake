@@ -5,20 +5,27 @@ import numpy
 from manager.game_manager import GameManager
 from utils import config
 
-#TODO: Ottimizzare assolutamente i for, con popolazione 2000 muore tutto
+
+# TODO: Ottimizzare assolutamente i for, con popolazione 2000 muore tutto
 def calculate_fitness(population):
     """Calculate the fitness value for the entire population of the generation."""
     # First we create all_fit, an empty array, at the start. Then we proceed to start the chromosome x and we will
-    # calculate his fit_value. This process is repetead config.NUMBER_OF_GAMES_PER_CHROMOSEME times. Then we will
+    # calculate his fit_value. This process is repetead config.NUMBER_OF_GAMES_PER_CHROMOSOME times. Then we will
     # insert, inside the all_fit array, all the fit_values for each chromosome of the population and return the array.
     all_fit = []
+    apple_position = []
+    max = 0
     for i in range(len(population)):
         fit_value = 0
         for _ in range(config.NUMBER_OF_GAMES_PER_CHROMOSOME):
-            fit_value += GameManager(population[i]).play_game()
+            points, apples = GameManager(population[i]).play_game()
+            if points > max:
+                apple_position = apples.copy()
+                max = points
+            fit_value += points
         fit_value /= config.NUMBER_OF_GAMES_PER_CHROMOSOME
         all_fit.append(fit_value)
-    return all_fit
+    return all_fit, apple_position
 
 
 def select_best_individuals(population, fitness):
@@ -77,5 +84,3 @@ def mutation(offspring_crossover):
                     offspring_crossover[offspring_index, index] = -1
 
     return offspring_crossover
-
-
