@@ -37,10 +37,11 @@ class DisplayManager:
                          pygame.Rect(self.__apple.position[0], self.__apple.position[1], self.__side[0],
                                      self.__side[1]))
 
-    def draw(self):
+    def draw(self, score):
         """Called by the Game Manager to draw the objects needed."""
         self.__display.fill(config.BLACK)
         self.draw_grid()
         self.display_snake()
         self.display_apple()
+        pygame.display.set_caption("Genetic Snake - SCORE: " + str(score))
         pygame.display.update()

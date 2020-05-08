@@ -4,14 +4,6 @@ import numpy
 import pygame
 
 import manager.collision_manager as collision_manager
-# TODO: Fare che si possa anche giocare a mano e non solamente con IA?
-# TODO: Check Vittoria
-# TODO: Snake guarda in tutte le direzioni in torno a sè: Davanti, davanti a sinistra, sinistra, dietro sinistra,
-#       davanti destra, destra, dietro destra, dietro. Per ogni direzione ha la distanza da sè, dal muro e dal cibo. 24 input.
-# TODO: Input fra -1 e 1
-# TODO: La mela non può spawnare dentro snake
-# TODO: Non permette di chiudere snake premendo la X della windows
-# TODO: Salvare la posizione di tutte le mele per il miglior snake, così che si possa rivedere il replay della partita
 import utils.action as Action
 from game.apple import Apple
 from game.snake import Snake
@@ -24,13 +16,27 @@ class GameManager:
     def __init__(self, weights, apple_position=None):
         self.__snake = Snake()
         self.__apple = Apple(numpy.array([0, 0]))
-        self.__score = self.__snake.length
+        self.__score = 0
         self.__clock = pygame.time.Clock()
         self.__weights = weights
         self.__remaining_moves = config.MOVES
         self.__display_manager = DisplayManager(self.__snake, self.__apple)
         self.__time_alive = 0
         self.__apple_position = apple_position
+        self.__neural_network = NeuralNetwork(self.__weights)
+
+    def directions_distance_objects(self):
+        front_direction_vector = self.__snake.position[0] - self.__snake.position[1]
+        left_direction_vector = numpy.array([front_direction_vector[1], -front_direction_vector[0]])
+        right_direction_vector = numpy.array([-front_direction_vector[1], front_direction_vector[0]])
+
+        vision = numpy.zeros((0, 1))
+        for vector in [left_direction_vector, front_direction_vector, right_direction_vector]:
+            objects = self.get_objects_by_direction(vector)
+            vision = numpy.append(vision, objects[0])
+            vision = numpy.append(vision, objects[1])
+            vision = numpy.append(vision, objects[2])
+        return vision
 
     def get_objects_by_direction(self, direction):
         end = False
@@ -51,19 +57,6 @@ class GameManager:
                 objects[2] = 1 / distance
                 found_self = True
         return objects
-
-    def directions_distance_objects(self):
-        front_direction_vector = self.__snake.position[0] - self.__snake.position[1]
-        left_direction_vector = numpy.array([front_direction_vector[1], -front_direction_vector[0]])
-        right_direction_vector = numpy.array([-front_direction_vector[1], front_direction_vector[0]])
-
-        vision = numpy.zeros((0, 1))
-        for vector in [left_direction_vector, front_direction_vector, right_direction_vector]:
-            objects = self.get_objects_by_direction(vector)
-            vision = numpy.append(vision, objects[0])
-            vision = numpy.append(vision, objects[1])
-            vision = numpy.append(vision, objects[2])
-        return vision
 
     def angle_with_apple(self):
         apple_direction_vector = numpy.array(self.__apple.position) - numpy.array(self.__snake.position[0])
@@ -110,63 +103,68 @@ class GameManager:
 
         return apple_position
 
-    def play_game(self):
-        index_apple = 0
+    def get_action_from_nn(self):
+        vision = self.directions_distance_objects()
+        vision = numpy.append(vision, self.angle_with_apple())
+        self.__neural_network.update_parameters(vision)
+        nn_output = self.__neural_network.get_action()
 
+        new_direction = numpy.array(self.__snake.position[0]) - numpy.array(self.__snake.position[1])
+        if nn_output == 0:
+            new_direction = numpy.array([new_direction[1], -new_direction[0]])
+        if nn_output == 2:
+            new_direction = numpy.array([-new_direction[1], new_direction[0]])
+
+        if new_direction.tolist() == [config.RECT_SIZE[0], 0]:
+            action = Action.RIGHT
+        elif new_direction.tolist() == [-config.RECT_SIZE[0], 0]:
+            action = Action.LEFT
+        elif new_direction.tolist() == [0, config.RECT_SIZE[1]]:
+            action = Action.DOWN
+        else:
+            action = Action.UP
+        return action
+
+    def calculate_fitness(self):
+        fitness = self.__time_alive + ((2 ** self.__snake.length) + (self.__snake.length ** 2.1) * 500) - (
+                ((.25 * self.__time_alive) ** 1.3) * (self.__snake.length ** 1.2))
+        fitness = max(fitness, .1)
+        return fitness
+
+    def collision_with_apple(self):
+        self.__score += 1
+        self.__remaining_moves += config.APPLE_EXTRA_MOVES
+        self.__snake.add_piece()
+        if self.__remaining_moves > config.MAX_MOVES:
+            self.__remaining_moves = config.MAX_MOVES
+        if self.__apple_position is not None:
+            self.__apple.position = self.__apple_position[self.__score]
+        else:
+            self.__apple.position = self.spawn_apple()
+        return self.__apple_position
+
+    def play_game(self):
         apple_position = []
-        if self.__apple_position is not None and len(self.__apple_position) >= index_apple+1 is not None:
-            self.__apple.position = self.__apple_position[index_apple]
+        if self.__apple_position is not None:
+            self.__apple.position = self.__apple_position[self.__score]
         else:
             self.__apple.position = self.spawn_apple()
         apple_position.append(self.__apple.position)
         ended_game = False
-        neural_network = NeuralNetwork(self.__weights)
         while ended_game is not True:
-            self.__display_manager.draw()
-            vision = self.directions_distance_objects()
-            vision = numpy.append(vision, self.angle_with_apple())
-            neural_network.update_parameters(vision)
-
-            index = neural_network.get_action()
-            new_direction = numpy.array(self.__snake.position[0]) - numpy.array(self.__snake.position[1])
-            if index == 0:
-                new_direction = numpy.array([new_direction[1], -new_direction[0]])
-            if index == 2:
-                new_direction = numpy.array([-new_direction[1], new_direction[0]])
-            if new_direction.tolist() == [config.RECT_SIZE[0], 0]:
-                action = Action.RIGHT
-            elif new_direction.tolist() == [-config.RECT_SIZE[0], 0]:
-                action = Action.LEFT
-            elif new_direction.tolist() == [0, config.RECT_SIZE[1]]:
-                action = Action.DOWN
-            else:
-                action = Action.UP
-
-            self.__snake.move_snake(action)
+            self.__display_manager.draw(self.__score)
+            self.__snake.move_snake(self.get_action_from_nn())
             self.__remaining_moves -= 1
             self.__time_alive += 1
 
             if collision_manager.collision_with_apple(self.__apple.position, self.__snake.position[0]):
-                self.__score += self.__apple.points
-                index_apple += 1
-                self.__remaining_moves += config.APPLE_EXTRA_MOVES
-                if self.__remaining_moves > 500:
-                    self.__remaining_moves = 500
-                if self.__apple_position is not None and len(self.__apple_position) >= index_apple+1:
-                    self.__apple.position = self.__apple_position[index_apple]
-                else:
-                    self.__apple.position = self.spawn_apple()
-                apple_position.append(self.__apple.position)
-                self.__snake.add_piece()
-            pygame.display.set_caption("Genetic Snake - SCORE: " + str(self.__score))
+                apple_position.append(self.collision_with_apple())
+
             ended_game = self.check_if_game_ended()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     ended_game = True
+
             self.__clock.tick(config.FPS)
 
-        fitness = self.__time_alive + ((2 ** self.__snake.length) + (self.__snake.length ** 2.1) * 500) - (
-                ((.25 * self.__time_alive) ** 1.3) * (self.__snake.length ** 1.2))
-        fitness = max(fitness, .1)
-
-        return fitness, apple_position
+        return self.calculate_fitness(), apple_position
