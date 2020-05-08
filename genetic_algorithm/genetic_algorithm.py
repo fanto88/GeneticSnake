@@ -6,24 +6,22 @@ from manager.game_manager import GameManager
 from utils import config
 
 
-# TODO: Ottimizzare assolutamente i for, con popolazione 2000 muore tutto
 def calculate_fitness(population):
     """Calculate the fitness value for the entire population of the generation."""
     # First we create all_fit, an empty array, at the start. Then we proceed to start the chromosome x and we will
-    # calculate his fit_value. This process is repetead config.NUMBER_OF_GAMES_PER_CHROMOSOME times. Then we will
-    # insert, inside the all_fit array, all the fit_values for each chromosome of the population and return the array.
+    # calculate his fit_value. Then we will insert, inside the all_fit array, all the fit_values for each chromosome
+    # of the population and return the array. max_points is used to return all the apple positions of the game with
+    # the best snake so that we can watch again the game later
     all_fit = []
     apple_position = []
-    max = 0
+    max_points = 0
     for i in range(len(population)):
         fit_value = 0
-        for _ in range(config.NUMBER_OF_GAMES_PER_CHROMOSOME):
-            points, apples = GameManager(population[i]).play_game()
-            if points > max:
-                apple_position = apples.copy()
-                max = points
-            fit_value += points
-        fit_value /= config.NUMBER_OF_GAMES_PER_CHROMOSOME
+        points, apples = GameManager(population[i]).play_game()
+        if points > max_points:
+            apple_position = apples.copy()
+            max_points = points
+        fit_value += points
         all_fit.append(fit_value)
     return all_fit, apple_position
 
@@ -50,8 +48,7 @@ def select_best_individuals(population, fitness):
 def crossover(parents, offspring_size):
     """Create a crossover of the best parents."""
     # First we start by creating and empty array with the size equal to offspring_size we want. The type of the
-    # array is [ [Index, Weights[]] ]. If the parents size is only 1 than we can't make crossover and we return
-    # the parent itself, otherwise we select 2 random parents and then mix their weights based on a probability
+    # array is [ [Index, Weights[]] ]. We select 2 random parents and then mix their weights based on a probability
     offspring = numpy.empty(offspring_size)
     for offspring_index in range(offspring_size[0]):
         while True:
@@ -69,10 +66,7 @@ def crossover(parents, offspring_size):
 
 def mutation(offspring_crossover):
     """Mutating the offsprings generated from crossover to maintain variation in the population."""
-    # We cycle though the offspring_crossover population and we change x random weights, where x is a parameter
-    # inside the config file. We select a random index, generate a random value between -1 and 1 and then
-    # we sum the original weight with the random_value, so that we have a variation inside the population
-
+    # We mutate each genes of a chromosome based on a probability, but the range of the weights must be -1 and 1
     for offspring_index in range(offspring_crossover.shape[0]):
         for index in range(offspring_crossover.shape[1]):
             if numpy.random.random() < config.MUTATION_PERCENTAGE:
