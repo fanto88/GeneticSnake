@@ -12,6 +12,11 @@ class DisplayManager:
         self.__snake = snake
         self.__apple = apple
 
+    def draw_grid_border(self):
+        pygame.draw.rect(self.__display, config.GRID_BORDER_COLOR,
+                         pygame.Rect(0, 0, self.__side[0] * config.GRID_SIZE[0],
+                                     self.__side[1] * config.GRID_SIZE[1]), 1)
+
     def draw_grid(self):
         """Display the grid of the arena."""
         if config.DRAW_GRID:
@@ -41,6 +46,7 @@ class DisplayManager:
         """Called by the Game Manager to draw the objects needed."""
         self.__display.fill(config.BLACK)
         self.draw_grid()
+        self.draw_grid_border()
         self.display_snake()
         self.display_apple()
         pygame.display.set_caption("Genetic Snake - SCORE: " + str(score))

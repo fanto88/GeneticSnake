@@ -9,8 +9,6 @@ import genetic_algorithm.genetic_algorithm as genetic_algorithm
 from manager.game_manager import GameManager
 from utils import config
 
-# TODO: Fare che salvi lo snake migliore ad ogni generazione
-
 generation_number = -1
 population = numpy.random.choice(numpy.arange(-1, 1, step=0.01),
                                  size=(config.NUMBER_OF_POPULATION, config.NUMBER_WEIGHTS))
@@ -57,6 +55,7 @@ else:
 
         snakes_fitness, apple_position = genetic_algorithm.calculate_fitness(population)
         snake_fitness_copy = snakes_fitness.copy()
+        apple_position_copy = apple_position.copy()
         print('#######  fittest chromosome in generation ', generation_number, ' is having fitness value:  ',
               numpy.max(snakes_fitness))
 
@@ -66,7 +65,7 @@ else:
                       parents[0],
                       delimiter=",")
         numpy.savetxt(config.BEST_SCORER_FOLDER + "generation_" + str(generation_number) + "_apple_position.csv",
-                      apple_position,
+                      apple_position_copy,
                       delimiter=",")
         # Generating next generation using crossover.
         offspring_crossover = genetic_algorithm.crossover(parents,

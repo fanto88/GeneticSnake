@@ -141,7 +141,7 @@ class GameManager:
             self.__apple.position = self.__apple_position[self.__score]
         else:
             self.__apple.position = self.spawn_apple()
-        return self.__apple_position
+        return self.__apple.position
 
     def play_game(self):
         apple_position = []
@@ -166,5 +166,4 @@ class GameManager:
                     ended_game = True
 
             self.__clock.tick(config.FPS)
-
         return self.calculate_fitness(), apple_position
