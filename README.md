@@ -106,25 +106,35 @@ MAX_MOVES = 500
 ### Customizing the NN
 
 #### How many points the apple value inside the fitness function
+```
 APPLE_POINTS = 1
+```
 
 #### Change some of the genetic algorithm parameters
+```
 NUMBER_OF_POPULATION = 200
 NUMBER_OF_GENERATION = 200
 NUMBER_PARENTS_CROSSOVER = 10
 MUTATION_PERCENTAGE = 0.1
+```
+
 
 #### Change the neural network input, hidden layers and output neurons
+```
 INPUT = 10
 NEURONS_HIDDEN_1 = 6
 OUTPUT = 3
 NUMBER_WEIGHTS = INPUT * NEURONS_HIDDEN_1 + NEURONS_HIDDEN_1 * OUTPUT
+```
+
 
 #### Change the location of the generations_files created. Those files are used for the extra parameters when launching the game
-
+```
 GENERATION_FILES_FOLDER = 'generations_files/'
 LAST_GENERATION_FILE_NAME = GENERATION_FILES_FOLDER + 'latest_generation_number.csv'
 WEIGHTS_FILES_FOLDER = GENERATION_FILES_FOLDER + 'weights/'
 SCORES_FILES_FOLDER = GENERATION_FILES_FOLDER + 'scores/'
 BEST_SCORER_FOLDER = GENERATION_FILES_FOLDER + 'best_scorer/'
+```
+
 
