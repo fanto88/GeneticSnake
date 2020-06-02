@@ -1,8 +1,3 @@
-# SnakeIA
-<div style="text-align:center">
-    <img src="https://i.ibb.co/Qkmm8yz/board.png">
-</div>
-
 # Artificial Intelligence for Snake Game
 Artificial Intelligence using the genetic algorithm able to play Snake game.
 
@@ -59,12 +54,6 @@ Example to load the best snake of the generation 200 to watch his game replay
 ```
 python main.py -b 200
 ```
-
-
-parser.add_option('-g', '--generation', action="store", dest="generation",
-                  help="Insert the generation you would like to watch")
-parser.add_option('-b', '--best-scorer', action="store", dest="best_scorer",
-                  help="Insert the generation you would like to watch")
 
 ## Customizing
 Inside the file utils/config.py you will find some lines that let you customize the game.
